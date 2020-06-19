@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="SamItemFilter:jar">
+    <output-path>$USER_HOME$/Desktop/Serene Stuff/Plugins i made</output-path>
+    <root id="archive" name="SamItemFilter.jar">
+      <element id="module-output" name="SamItemFilter" />
+      <element id="library" level="module" name="spigot-1.13.1.jar" module-name="SamItemFilter" />
+    </root>
+  </artifact>
+</component>

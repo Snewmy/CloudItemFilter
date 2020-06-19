@@ -1,0 +1,7 @@
+name: SamItemFilter
+version: 1.0
+main: me.Sam.ItemFilter.ItemFilter
+description: sams itemfilter plugin
+api-version: 1.13
+commands:
+  itemfilter:
