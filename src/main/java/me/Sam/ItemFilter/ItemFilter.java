@@ -17,11 +17,16 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class ItemFilter extends JavaPlugin{
+
+	public static ItemFilter instance;
 	File datafile = new File(getDataFolder(), "data.yml");
 	FileConfiguration data = YamlConfiguration.loadConfiguration(datafile);
 	ArrayList<FilterStorage> filters = new ArrayList<FilterStorage>();
+	public File messagesfile = new File(getDataFolder(), "messages.yml");
+	public FileConfiguration messages = YamlConfiguration.loadConfiguration(messagesfile);
 	
 	public void onEnable() {
+		instance = this;
 		getServer().getLogger().info("Sams itemfilter plugin enabled");
 		getServer().getPluginManager().registerEvents(new DropsListener(this), this);
 		if(!data.isConfigurationSection("Data")) {
@@ -34,6 +39,9 @@ public class ItemFilter extends JavaPlugin{
 		}
 		loadData();
 		autosaver();
+		if(!messagesfile.exists()){
+			saveResource("messages.yml", false);
+		}
 	}
 	
 	public void onDisable() {
@@ -44,15 +52,15 @@ public class ItemFilter extends JavaPlugin{
 		if(cmd.getName().equalsIgnoreCase("itemfilter")) {
 			if(sender instanceof Player) {
 				Player p = (Player) sender;
-				if(hasFilter(p) == true) {
+				if(hasFilter(p)) {
 					FilterStorage filter = getPlayerFilter(p.getUniqueId());
 					filter.openFilterInv();
-					p.sendMessage(Utils.chat("&eHugs &8&l≫ &7Opening item filter!"));
+					p.sendMessage(Utils.chat(Msg.OPENINGFILTER.getMsg()));
 				} else {
 					FilterStorage filter = new FilterStorage(p.getUniqueId());
 					this.filters.add(filter);
 					filter.openFilterInv();
-					p.sendMessage(Utils.chat("&eHugs &8&l≫ &7Opening item filter!"));
+					p.sendMessage(Utils.chat(Msg.OPENINGFILTER.getMsg()));
 				}
 			}
 		}

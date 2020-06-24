@@ -20,11 +20,11 @@ public class DropsListener implements Listener{
 	@EventHandler
 	public void onItemPickup(PlayerPickupItemEvent e) {
 		Player p = e.getPlayer();
-		if(itemfilter.hasFilter(p) == false) {
+		if(!itemfilter.hasFilter(p)) {
 			Random random = new Random();
-			int chance = random.nextInt(1000 - 0) + 1;
+			int chance = random.nextInt(1000) + 1;
 			if(chance <= 2) {
-				p.sendMessage(Utils.chat("&eItemFilter &8&l≫ &7Did you know you can filter out drops by typing /itemfilter and adding an item?"));
+				p.sendMessage(Utils.chat(Msg.DIDYOUKNOW.getMsg()));
 			}
 			return;
 		}
