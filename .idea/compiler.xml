@@ -9,8 +9,5 @@
         <module name="SamItemFilter" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="SamItemFilter" target="6" />
-    </bytecodeTargetLevel>
   </component>
 </project>

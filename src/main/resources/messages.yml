@@ -1,3 +1,4 @@
-Prefix: '&eItemFilter &8&l≫ '
-DidYouKnow: '&7Did you know you can filter out drops by typing /itemfilter and adding an item?'
+Prefix: '&3&lA&3rkacia &8&l≫ '
+DidYouKnow: '&7Did you know you can filter out drops by typing &3/itemfilter &7
+and adding an item? &3(Type /itemfilter to stop this message)'
 OpeningFilter: '&7Opening item filter!'

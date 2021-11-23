@@ -11,26 +11,28 @@ import org.bukkit.inventory.ItemStack;
 @SuppressWarnings("deprecation")
 public class DropsListener implements Listener{
 	
-	ItemFilter itemfilter;
+	ItemFilter main;
 	
 	public DropsListener(ItemFilter main) {
-		this.itemfilter = main;
+		this.main = main;
 	}
 	
 	@EventHandler
 	public void onItemPickup(PlayerPickupItemEvent e) {
 		Player p = e.getPlayer();
-		if(!itemfilter.hasFilter(p)) {
-			Random random = new Random();
-			int chance = random.nextInt(1000) + 1;
-			if(chance <= 2) {
-				p.sendMessage(Utils.chat(Msg.DIDYOUKNOW.getMsg()));
+		if (p.hasPermission("SamItemFilter.Filter")) {
+			if (!main.hasFilter(p)) {
+				Random random = new Random();
+				int chance = random.nextInt(1000) + 1;
+				if (chance <= 2) {
+					p.sendMessage(Utils.chat(Msg.DIDYOUKNOW.getMsg()));
+				}
+				return;
 			}
-			return;
-		}
-		ItemStack item = e.getItem().getItemStack();
-		if(itemfilter.getPlayerFilter(p.getUniqueId()).getFilterInv().contains(item.getType(), 1)){
-			e.setCancelled(true);
+			ItemStack item = e.getItem().getItemStack();
+			if (main.filters.get(p.getUniqueId()).getFilterInv().contains(item.getType(), 1)) {
+				e.setCancelled(true);
+			}
 		}
 	}
 

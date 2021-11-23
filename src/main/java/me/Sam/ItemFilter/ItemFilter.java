@@ -2,9 +2,8 @@ package me.Sam.ItemFilter;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.logging.Filter;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -21,7 +20,7 @@ public class ItemFilter extends JavaPlugin{
 	public static ItemFilter instance;
 	File datafile = new File(getDataFolder(), "data.yml");
 	FileConfiguration data = YamlConfiguration.loadConfiguration(datafile);
-	ArrayList<FilterStorage> filters = new ArrayList<FilterStorage>();
+	Map<UUID, FilterStorage> filters = new HashMap<UUID, FilterStorage>();
 	public File messagesfile = new File(getDataFolder(), "messages.yml");
 	public FileConfiguration messages = YamlConfiguration.loadConfiguration(messagesfile);
 	
@@ -29,6 +28,7 @@ public class ItemFilter extends JavaPlugin{
 		instance = this;
 		getServer().getLogger().info("Sams itemfilter plugin enabled");
 		getServer().getPluginManager().registerEvents(new DropsListener(this), this);
+		getServer().getPluginManager().registerEvents(new InventoryClick(this), this);
 		if(!data.isConfigurationSection("Data")) {
 			data.createSection("Data");
 			try {
@@ -52,15 +52,45 @@ public class ItemFilter extends JavaPlugin{
 		if(cmd.getName().equalsIgnoreCase("itemfilter")) {
 			if(sender instanceof Player) {
 				Player p = (Player) sender;
-				if(hasFilter(p)) {
-					FilterStorage filter = getPlayerFilter(p.getUniqueId());
-					filter.openFilterInv();
-					p.sendMessage(Utils.chat(Msg.OPENINGFILTER.getMsg()));
+				if (p.hasPermission("SamItemFilter.Filter")) {
+					if (hasFilter(p)) {
+						FilterStorage filter = filters.get(p.getUniqueId());
+						if (p.hasPermission("SamItemFilter.Size6")) {
+							filter.setSize(54);
+						} else if (p.hasPermission("SamItemFilter.Size5")) {
+							filter.setSize(45);
+						} else if (p.hasPermission("SamItemFilter.Size4")) {
+							filter.setSize(36);
+						} else if (p.hasPermission("SamItemFilter.Size3")) {
+							filter.setSize(27);
+						} else if (p.hasPermission("SamItemFilter.Size2")) {
+							filter.setSize(18);
+						} else if (p.hasPermission("SamItemFilter.Size1")) {
+							filter.setSize(9);
+						}
+						filter.openFilterInv();
+						p.sendMessage(Utils.chat(Msg.OPENINGFILTER.getMsg()));
+					} else {
+						FilterStorage filter = new FilterStorage(p.getUniqueId(), 9);
+						if (p.hasPermission("SamItemFilter.Size6")) {
+							filter.setSize(54);
+						} else if (p.hasPermission("SamItemFilter.Size5")) {
+							filter.setSize(45);
+						} else if (p.hasPermission("SamItemFilter.Size4")) {
+							filter.setSize(36);
+						} else if (p.hasPermission("SamItemFilter.Size3")) {
+							filter.setSize(27);
+						} else if (p.hasPermission("SamItemFilter.Size2")) {
+							filter.setSize(18);
+						} else if (p.hasPermission("SamItemFilter.Size1")) {
+							filter.setSize(9);
+						}
+						this.filters.put(p.getUniqueId(), filter);
+						filter.openFilterInv();
+						p.sendMessage(Utils.chat(Msg.OPENINGFILTER.getMsg()));
+					}
 				} else {
-					FilterStorage filter = new FilterStorage(p.getUniqueId());
-					this.filters.add(filter);
-					filter.openFilterInv();
-					p.sendMessage(Utils.chat(Msg.OPENINGFILTER.getMsg()));
+					p.sendMessage(Utils.chat("&cYou do not have permission!"));
 				}
 			}
 		}
@@ -68,27 +98,15 @@ public class ItemFilter extends JavaPlugin{
 	}
 
 	public boolean hasFilter(Player p) {
-		for(FilterStorage filter : this.filters) {
-			if(filter.getPlayer().equals(p.getUniqueId())) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public FilterStorage getPlayerFilter(UUID player) {
-		for(FilterStorage filter : this.filters) {
-			if(filter.getPlayer().equals(player)) {
-				return filter;
-			}
-		}
-		return null;
+		return filters.containsKey(p.getUniqueId());
 	}
 	
 	public void saveData() {
 		ConfigurationSection data = this.data.getConfigurationSection("Data");
-		for(FilterStorage filter : this.filters) {
+		for(Map.Entry<UUID, FilterStorage> entry : this.filters.entrySet()) {
+			FilterStorage filter = entry.getValue();
 			data.set(filter.getPlayer().toString() + ".inventory", filter.getFilterInv().getContents());
+			data.set(filter.getPlayer().toString() + ".size", filter.getSize());
 		}
 		try {
 			this.data.save(this.datafile);
@@ -101,14 +119,15 @@ public class ItemFilter extends JavaPlugin{
 	public void loadData() {
 		ConfigurationSection data = this.data.getConfigurationSection("Data");
 		for(String uuid : data.getKeys(false)) {
-			FilterStorage filter = new FilterStorage(UUID.fromString(uuid));
+			int size = data.getInt(uuid + ".size");
+			FilterStorage filter = new FilterStorage(UUID.fromString(uuid), size);
 			ItemStack[] items = ((List<ItemStack>) data.get(uuid + ".inventory")).toArray(new ItemStack[0]);
 			for(ItemStack item : items) {
 				if(item != null) {
 				filter.getFilterInv().addItem(item);
 				}
 			}
-			this.filters.add(filter);
+			this.filters.put(UUID.fromString(uuid), filter);
 		}
 	}
 
